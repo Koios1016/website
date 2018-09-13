@@ -26,6 +26,6 @@ urlpatterns = [
     path('register/', views.register),
     path('logout/', views.logout),
     path('captcha/', include('captcha.urls')),  # 增加这一行
-    path('confirm', views.user_confirm),
+    path('confirm/', views.user_confirm),
 
 ]

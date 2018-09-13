@@ -1,6 +1,7 @@
 import hashlib
-from datetime import datetime
+import datetime
 
+import pytz
 from django.conf import settings
 from django.shortcuts import render, redirect
 
@@ -45,7 +46,7 @@ def login(request):
 
 
 def make_confirm_string(user):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     code = hash_code(user.name, now)
     models.ConfirmString.objects.create(code=code, user=user, )
     return code
@@ -105,8 +106,8 @@ def register(request):
 
                 code = make_confirm_string(new_user)
                 send_email(email, code)
-                message = '请前往注册邮箱，进行邮件确认！'
 
+                message = '请前往注册邮箱，进行邮件确认！'
                 # return redirect('/login/')  # 自动跳转到登录页面
                 return render(request, 'login/confirm.html', locals())  # 跳转到等待邮件确认页面。
 
@@ -148,7 +149,7 @@ def user_confirm(request):
 
     # 获取注册的时间c_time，加上设置的过期天数(settings中)，然后与现在时间点进行对比；
     c_time = confirm.c_time
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
     if now > c_time + datetime.timedelta(settings.CONFIRM_DAYS):
         # 如果时间已经超期，删除注册的用户，同时注册码也会一并删除，然后返回confirm.html页面，并提示;
         confirm.user.delete()
