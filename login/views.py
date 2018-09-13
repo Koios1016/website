@@ -23,7 +23,7 @@ def login(request):
             password = login_form.cleaned_data['password']
             try:
                 user = models.User.objects.get(name=username)
-                if user.password == password:
+                if user.password == hash_code(password):  # 哈希值和数据库内的值进行比对
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
                     request.session['user_name'] = username
@@ -68,7 +68,7 @@ def register(request):
 
                 new_user = models.User()
                 new_user.name = username
-                new_user.password = password1
+                new_user.password = hash_code(password1)  # 使用加密密码
                 new_user.email = email
                 new_user.sex = sex
                 new_user.save()
@@ -90,7 +90,7 @@ def logout(request):
     return redirect("/index/")
 
 
-def hash_code(s, salt='mysite'):# 加点盐
+def hash_code(s, salt='mysite'):  # 加点盐
     h = hashlib.sha256()
     s += salt
     h.update(s.encode())  # update方法只接收bytes类型
